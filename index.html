@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embedded Form</title>
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.18.1/build/cssreset-context/cssreset-context-min.css">
+    <style>
+        /* CSS Reset will be applied by the YUI link, but keep body styles for overall page */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0; /* Remove body padding */
+            direction: rtl; /* Right-to-left for the whole page */
+        }
+
+        /* Styles previously in inlineStyles variable */
+        #interface-embbed40 { /* Target the container */
+            /* Styles for the form container itself */
+             margin: 0; /* Reset margin if needed */
+             padding: 0; /* Reset padding if needed */
+        }
+
+        #bmbyFormWarp {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 20px auto; /* Center the form */
+        }
+
+        .labeltop {
+            margin-bottom: 20px;
+        }
+
+        .fieldLabel {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .mandatoryAps {
+            color: #e74c3c;
+            margin-left: 4px;
+            font-weight: bold;
+        }
+
+        .input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            direction: rtl; /* Keep RTL for inputs */
+        }
+
+        .input:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+
+        .input.mandatory {
+            border-left: 3px solid #e74c3c;
+        }
+
+        .button {
+            background-color: #3498db;
+            color: #fff;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .button:hover {
+            background-color: #2980b9;
+        }
+
+        .btn {
+            text-align: center;
+        }
+
+        .checkbox-container {
+            padding-top: 15px;
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            margin-left: 10px;
+            vertical-align: middle;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .alert-box {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 20px;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 1rem;
+            z-index: 1000;
+            display: none;
+            min-width: 250px;
+            text-align: center;
+        }
+
+        .alert-box.success {
+            background-color: #2ecc71;
+        }
+
+        .alert-box.error {
+             background-color: #e74c3c;
+        }
+
+        .alert-message {
+            display: none;
+        }
+
+        .alert-box.success .alert-message.success,
+        .alert-box.error .alert-message.error {
+            display: inline;
+        }
+
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="interface-embbed40" class="yui3-cssreset">
+        <!-- Form content will be loaded here -->
+    </div>
+
+    <script>
+      (function(){
+        var request = new XMLHttpRequest();
+        request.open("POST", "https://mbeat.bmby.com/External/Interfaces/form/3445/40", true);
+        request.onload = function() {
+          if (request.readyState == 4 && request.status == 200){
+            var interfacediv = document.querySelector("#interface-embbed40");
+            interfacediv.innerHTML = request.responseText;
+            var scripts = interfacediv.querySelectorAll("script");
+            for(var i = 0; i < scripts.length; i++){
+              var s = document.createElement("script");
+              s.setAttribute("type", "text/javascript");
+              // Copy inline script content
+              if(scripts[i].innerHTML) {
+                  s.innerHTML = scripts[i].innerHTML;
+              }
+              // Copy external script src attribute
+              if(scripts[i].src && scripts[i].src !== "") {
+                  s.src = scripts[i].src;
+              }
+              // Append the new script element to the div, not the head or body directly
+              // to ensure it executes in the context of the fetched content if needed.
+              // Using interfacediv.appendChild(s) might cause issues if the scripts
+              // expect to be in the head or at the end of body. A safer approach
+              // might be to append them to the document's head or body, but let's
+              // stick to the original logic for now.
+              interfacediv.appendChild(s);
+            }
+          } else {
+            // Provide more informative error handling
+            console.error("Error loading form:", request.status, request.statusText);
+            var interfacediv = document.querySelector("#interface-embbed40");
+            interfacediv.innerHTML = '<p style="color: red; text-align: center;">טעינת הטופס נכשלה. אנא נסה שוב מאוחר יותר.</p>'; // User-friendly error in Hebrew
+          }
+        };
+        request.onerror = function() {
+          // Handle network errors
+          console.error("Network error while attempting to load the form.");
+           var interfacediv = document.querySelector("#interface-embbed40");
+           interfacediv.innerHTML = '<p style="color: red; text-align: center;">שגיאת רשת. אנא בדוק את חיבור האינטרנט שלך ונסה שוב.</p>'; // User-friendly network error in Hebrew
+        };
+        request.send();
+      })();
+    </script>
+
+</body>
+</html> 
